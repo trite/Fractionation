@@ -10,11 +10,11 @@ selectable = true
 script = ExtResource("1_operation_node")
 
 [node name="InputA" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="InputB" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="Equation" type="Label" parent="."]

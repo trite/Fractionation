@@ -5,6 +5,7 @@ extends Control
 @onready var subtract_button: Button = $ToolPanel/MarginContainer/HBoxContainer/SubtractButton
 @onready var multiply_button: Button = $ToolPanel/MarginContainer/HBoxContainer/MultiplyButton
 @onready var divide_button: Button = $ToolPanel/MarginContainer/HBoxContainer/DivideButton
+@onready var duplicator_button: Button = $ToolPanel/MarginContainer/HBoxContainer/DuplicatorButton
 @onready var token_label: Label = $ToolPanel/MarginContainer/HBoxContainer/TokenLabel
 @onready var win_screen: ColorRect = $WinScreen
 
@@ -15,7 +16,12 @@ var node_counter: int = 0
 
 # Token system
 const OPERATION_COST: int = 100
+const DUPLICATOR_COST: int = 200
 var tokens: int = 500
+
+# Milestone system
+var milestones: Array[Milestone] = []
+var unlocked_nodes: Array[String] = ["add", "subtract", "multiply", "divide"]
 
 func _ready() -> void:
 	# Connect GraphEdit signals
@@ -28,6 +34,10 @@ func _ready() -> void:
 	subtract_button.pressed.connect(_on_subtract_button_pressed)
 	multiply_button.pressed.connect(_on_multiply_button_pressed)
 	divide_button.pressed.connect(_on_divide_button_pressed)
+	duplicator_button.pressed.connect(_on_duplicator_button_pressed)
+
+	# Setup milestones
+	setup_milestones()
 
 	# Create the two starting nodes
 	create_starting_nodes()
@@ -77,6 +87,17 @@ func create_target_node(node_name: String, target: int, position: Vector2) -> Gr
 func update_token_display() -> void:
 	token_label.text = "Tokens: " + str(tokens)
 
+func setup_milestones() -> void:
+	# First connection milestone - unlocks duplicator
+	var first_connection = Milestone.new(
+		"First Connection",
+		Milestone.TriggerType.FIRST_CONNECTION,
+		null,
+		300,
+		["duplicator"]
+	)
+	milestones.append(first_connection)
+
 func _on_connection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
 	var existing_connections = graph_edit.get_connection_list()
 
@@ -121,11 +142,27 @@ func _on_delete_nodes_request(nodes: Array[StringName]) -> void:
 			print("Cannot delete starting node: ", node_name)
 			continue
 
-		# Refund tokens if it's an operation node
+		# Disconnect all connections from/to this node first
+		var connections = graph_edit.get_connection_list()
+		for connection in connections:
+			if connection["from_node"] == node_name or connection["to_node"] == node_name:
+				graph_edit.disconnect_node(connection["from_node"], connection["from_port"],
+										   connection["to_node"], connection["to_port"])
+				# Clear inputs on target nodes
+				if connection["to_node"] != node_name:
+					update_node_input(connection["to_node"], connection["to_port"], null)
+
+		# Refund tokens if it's an operation or duplicator node
 		var node = graph_edit.get_node(NodePath(node_name))
-		if node and node.has_method("get_result"):  # It's an operation node
-			tokens += OPERATION_COST
-			update_token_display()
+		if node:
+			if node.has_method("set_input_a") and node.has_method("set_input_b"):
+				# It's an operation node
+				tokens += OPERATION_COST
+				update_token_display()
+			elif node.has_method("set_input") and node.has_method("get_result"):
+				# It's a duplicator node
+				tokens += DUPLICATOR_COST
+				update_token_display()
 
 		# Get the node and remove it
 		if node:
@@ -167,6 +204,37 @@ func _on_multiply_button_pressed() -> void:
 func _on_divide_button_pressed() -> void:
 	create_operation_node(3)  # Operation.DIVIDE
 
+func _on_duplicator_button_pressed() -> void:
+	create_duplicator_node()
+
+func create_duplicator_node() -> void:
+	# Check if duplicator is unlocked
+	if not "duplicator" in unlocked_nodes:
+		print("Duplicator not yet unlocked!")
+		return
+
+	# Check if we have enough tokens
+	if tokens < DUPLICATOR_COST:
+		print("Not enough tokens! Need ", DUPLICATOR_COST, ", have ", tokens)
+		return
+
+	# Deduct tokens
+	tokens -= DUPLICATOR_COST
+	update_token_display()
+
+	var node = preload("res://duplicator_node.tscn").instantiate()
+	node.name = "duplicator_" + str(node_counter)
+	node_counter += 1
+
+	# Position new nodes in the center of the viewport with some offset
+	var scroll_offset = graph_edit.scroll_offset
+	var viewport_center = graph_edit.size / 2
+	var spawn_position = scroll_offset + viewport_center / graph_edit.zoom
+	spawn_position += Vector2(randf_range(-50, 50), randf_range(-50, 50))
+
+	node.position_offset = spawn_position
+	graph_edit.add_child(node)
+
 func get_node_output_value(node: Node) -> Variant:
 	# Get the output value from a node
 	if node.has_method("get_value"):
@@ -180,12 +248,16 @@ func update_node_input(node_name: StringName, port: int, value: Variant) -> void
 	if not node:
 		return
 
-	# Handle target nodes
-	if node.has_method("set_input"):
+	# Handle nodes with simple set_input (target nodes and duplicators)
+	if node.has_method("set_input") and not node.has_method("set_input_a"):
 		if value != null:
 			node.set_input(value)
 		else:
 			node.clear_input()
+
+		# Propagate if it's a duplicator (has output)
+		if node.has_method("get_result"):
+			propagate_value_changes(node_name)
 		return
 
 	# Update the appropriate input based on the port for operation nodes
@@ -220,21 +292,54 @@ func propagate_value_changes(source_node_name: StringName) -> void:
 			update_node_input(connection["to_node"], connection["to_port"], output_value)
 
 func check_win_condition() -> void:
-	# Check if all target nodes are solved
-	var all_solved := true
+	# Gather stats about solved targets
+	var solved_count := 0
+	var solved_targets: Array = []
+	var total_value := 0
 
 	for target_name in target_nodes:
 		var target_node = graph_edit.get_node(NodePath(target_name))
 		if target_node and target_node.has_method("is_solved"):
-			if not target_node.is_solved():
-				all_solved = false
-				break
-		else:
-			all_solved = false
-			break
+			if target_node.is_solved():
+				solved_count += 1
+				solved_targets.append(target_name)
+				if target_node.has_method("get_target"):
+					total_value += target_node.target_value
 
+	# Check milestones
+	check_milestones(solved_count, solved_targets, total_value)
+
+	# Check if all target nodes are solved
+	var all_solved := (solved_count == target_nodes.size())
 	if all_solved:
 		show_win_screen()
+
+func check_milestones(solved_count: int, solved_targets: Array, total_value: int) -> void:
+	for milestone in milestones:
+		if milestone.check_trigger(solved_count, solved_targets, total_value):
+			milestone.complete()
+			on_milestone_achieved(milestone)
+
+func on_milestone_achieved(milestone: Milestone) -> void:
+	print("Milestone achieved: ", milestone.milestone_name)
+
+	# Award tokens
+	if milestone.token_reward > 0:
+		tokens += milestone.token_reward
+		update_token_display()
+		print("  Awarded ", milestone.token_reward, " tokens!")
+
+	# Unlock nodes
+	for node_type in milestone.unlocks:
+		if not node_type in unlocked_nodes:
+			unlocked_nodes.append(node_type)
+			print("  Unlocked: ", node_type)
+
+			# Show UI buttons for unlocked nodes
+			if node_type == "duplicator":
+				duplicator_button.visible = true
+
+	# TODO: Show visual notification to player
 
 func show_win_screen() -> void:
 	win_screen.visible = true

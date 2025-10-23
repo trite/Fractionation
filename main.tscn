@@ -58,6 +58,14 @@ text = "× Multiply"
 layout_mode = 2
 text = "÷ Divide"
 
+[node name="VSeparator2" type="VSeparator" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="DuplicatorButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+text = "Duplicate (200)"
+
 [node name="GraphEdit" type="GraphEdit" parent="."]
 layout_mode = 1
 anchors_preset = 15
