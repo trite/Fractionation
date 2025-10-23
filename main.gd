@@ -261,18 +261,9 @@ func update_node_input(node_name: StringName, port: int, value: Variant) -> void
 		return
 
 	# Update the appropriate input based on the port for operation nodes
-	if node.has_method("set_input_a") and node.has_method("set_input_b"):
-		if port == 0:
-			if value != null:
-				node.set_input_a(value)
-			else:
-				node.clear_input_a()
-		elif port == 2:  # Port 1 is the spacer, port 2 is Input B
-			if value != null:
-				node.set_input_b(value)
-			else:
-				node.clear_input_b()
-
+	if node.has_method("handle_input_update"):
+		# Operation nodes handle their own port mapping
+		node.handle_input_update(port, value)
 		# Propagate changes downstream
 		propagate_value_changes(node_name)
 

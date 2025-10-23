@@ -7,38 +7,57 @@ enum Operation {
 	DIVIDE
 }
 
+# Port configuration - defines logical port mapping
+const PORT_INPUT_A: int = 0
+const PORT_INPUT_B: int = 1
+const PORT_OUTPUT: int = 3
+
 var operation: Operation = Operation.ADD
 var input_a: Variant = null
 var input_b: Variant = null
 var result: Variant = null
 
-@onready var equation_label: Label = $Equation
+@onready var input_x_label: Label = $InputX
+@onready var input_y_label: Label = $InputY
+@onready var output_label: Label = $Output
 
 func _ready() -> void:
-	# Set up slots: 2 inputs (left side) and 1 output (right side)
-	# Slot 0: Input A (left only)
-	set_slot_enabled_left(0, true)
-	set_slot_enabled_right(0, false)
-	set_slot_type_left(0, 0)
-	set_slot_color_left(0, Color.LIGHT_BLUE)
+	# Slot 0: Input X (left only)
+	set_slot_enabled_left(PORT_INPUT_A, true)
+	set_slot_enabled_right(PORT_INPUT_A, false)
+	set_slot_type_left(PORT_INPUT_A, 0)
+	set_slot_color_left(PORT_INPUT_A, Color.LIGHT_BLUE)
 
-	# Slot 1: Spacer (no connections)
-	set_slot_enabled_left(1, false)
-	set_slot_enabled_right(1, false)
+	# Slot 1: Input Y (left only)
+	set_slot_enabled_left(PORT_INPUT_B, true)
+	set_slot_enabled_right(PORT_INPUT_B, false)
+	set_slot_type_left(PORT_INPUT_B, 0)
+	set_slot_color_left(PORT_INPUT_B, Color.LIGHT_BLUE)
 
-	# Slot 2: Input B (left only)
-	set_slot_enabled_left(2, true)
+	# Slot 2: HSeparator (no connections)
+	set_slot_enabled_left(2, false)
 	set_slot_enabled_right(2, false)
-	set_slot_type_left(2, 0)
-	set_slot_color_left(2, Color.LIGHT_BLUE)
 
-	# Slot 3: Equation/Output (right only)
-	set_slot_enabled_left(3, false)
-	set_slot_enabled_right(3, true)
-	set_slot_type_right(3, 0)
-	set_slot_color_right(3, Color.LIGHT_GREEN)
+	# Slot 3: Output (right only)
+	set_slot_enabled_left(PORT_OUTPUT, false)
+	set_slot_enabled_right(PORT_OUTPUT, true)
+	set_slot_type_right(PORT_OUTPUT, 0)
+	set_slot_color_right(PORT_OUTPUT, Color.LIGHT_GREEN)
 
 	update_display()
+
+# Helper method to handle input updates by port
+func handle_input_update(port: int, value: Variant) -> void:
+	if port == PORT_INPUT_A:
+		if value != null:
+			set_input_a(value)
+		else:
+			clear_input_a()
+	elif port == PORT_INPUT_B:
+		if value != null:
+			set_input_b(value)
+		else:
+			clear_input_b()
 
 func set_operation(op: Operation) -> void:
 	operation = op
@@ -86,25 +105,20 @@ func get_result() -> Variant:
 	return result
 
 func update_display() -> void:
-	# Don't update if label isn't ready yet
-	if not equation_label:
+	# Don't update if labels aren't ready yet
+	if not input_x_label or not input_y_label or not output_label:
 		return
 
-	var op_symbol := ""
 	var op_name := ""
 
 	match operation:
 		Operation.ADD:
-			op_symbol = "+"
 			op_name = "Add"
 		Operation.SUBTRACT:
-			op_symbol = "-"
 			op_name = "Subtract"
 		Operation.MULTIPLY:
-			op_symbol = "×"
 			op_name = "Multiply"
 		Operation.DIVIDE:
-			op_symbol = "÷"
 			op_name = "Divide"
 
 	title = op_name
@@ -135,5 +149,7 @@ func update_display() -> void:
 	elif input_a != null and input_b != null and operation == Operation.DIVIDE and input_b == 0:
 		output_str = "ERR"
 
-	# Build the equation string
-	equation_label.text = input_a_str + " " + op_symbol + " " + input_b_str + " = " + output_str
+	# Update labels
+	input_x_label.text = "X: " + input_a_str
+	input_y_label.text = "Y: " + input_b_str
+	output_label.text = output_str

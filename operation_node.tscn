@@ -9,21 +9,18 @@ draggable = true
 selectable = true
 script = ExtResource("1_operation_node")
 
-[node name="InputA" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 5)
+[node name="InputX" type="Label" parent="."]
+layout_mode = 2
+text = "X: __"
+
+[node name="InputY" type="Label" parent="."]
+layout_mode = 2
+text = "Y: __"
+
+[node name="HSeparator" type="HSeparator" parent="."]
 layout_mode = 2
 
-[node name="Spacer1" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 8)
+[node name="Output" type="Label" parent="."]
 layout_mode = 2
-
-[node name="InputB" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 5)
-layout_mode = 2
-
-[node name="Equation" type="Label" parent="."]
-custom_minimum_size = Vector2(0, 5)
-layout_mode = 2
-text = "__ + __ = __"
+text = "__"
 horizontal_alignment = 1
-vertical_alignment = 1
