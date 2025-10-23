@@ -73,6 +73,10 @@ func get_result() -> Variant:
 	return result
 
 func update_display() -> void:
+	# Don't update if labels aren't ready yet
+	if not input1_label or not input2_label or not result_label:
+		return
+
 	var op_symbol := ""
 	var op_name := ""
 
