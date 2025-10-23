@@ -43,11 +43,17 @@ func create_number_node(node_name: String, value: int, position: Vector2) -> Gra
 	return node
 
 func _on_connection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
-	# Check if the target port already has a connection
 	var existing_connections = graph_edit.get_connection_list()
 
 	for connection in existing_connections:
-		# If there's already a connection to this input port, disconnect it first
+		# If there's already a connection FROM this output port, disconnect it first
+		if connection["from_node"] == from_node and connection["from_port"] == from_port:
+			graph_edit.disconnect_node(connection["from_node"], connection["from_port"],
+									   connection["to_node"], connection["to_port"])
+			# Clear the input on the old target node
+			update_node_input(connection["to_node"], connection["to_port"], null)
+
+		# If there's already a connection TO this input port, disconnect it first
 		if connection["to_node"] == to_node and connection["to_port"] == to_port:
 			graph_edit.disconnect_node(connection["from_node"], connection["from_port"],
 									   connection["to_node"], connection["to_port"])
