@@ -267,7 +267,7 @@ func update_node_input(node_name: StringName, port: int, value: Variant) -> void
 				node.set_input_a(value)
 			else:
 				node.clear_input_a()
-		elif port == 1:
+		elif port == 2:  # Port 1 is the spacer, port 2 is Input B
 			if value != null:
 				node.set_input_b(value)
 			else:

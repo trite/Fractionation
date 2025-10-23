@@ -16,27 +16,27 @@ var result: Variant = null
 
 func _ready() -> void:
 	# Set up slots: 2 inputs (left side) and 1 output (right side)
-	print("OperationNode setup. Child count: ", get_child_count())
-	for i in range(get_child_count()):
-		print("  Child ", i, ": ", get_child(i).name if get_child(i) else "null")
-
 	# Slot 0: Input A (left only)
 	set_slot_enabled_left(0, true)
 	set_slot_enabled_right(0, false)
 	set_slot_type_left(0, 0)
 	set_slot_color_left(0, Color.LIGHT_BLUE)
 
-	# Slot 1: Input B (left only)
-	set_slot_enabled_left(1, true)
+	# Slot 1: Spacer (no connections)
+	set_slot_enabled_left(1, false)
 	set_slot_enabled_right(1, false)
-	set_slot_type_left(1, 0)
-	set_slot_color_left(1, Color.LIGHT_BLUE)
 
-	# Slot 2: Result/Output (right only)
-	set_slot_enabled_left(2, false)
-	set_slot_enabled_right(2, true)
-	set_slot_type_right(2, 0)
-	set_slot_color_right(2, Color.LIGHT_GREEN)
+	# Slot 2: Input B (left only)
+	set_slot_enabled_left(2, true)
+	set_slot_enabled_right(2, false)
+	set_slot_type_left(2, 0)
+	set_slot_color_left(2, Color.LIGHT_BLUE)
+
+	# Slot 3: Equation/Output (right only)
+	set_slot_enabled_left(3, false)
+	set_slot_enabled_right(3, true)
+	set_slot_type_right(3, 0)
+	set_slot_color_right(3, Color.LIGHT_GREEN)
 
 	update_display()
 
