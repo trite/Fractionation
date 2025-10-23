@@ -18,6 +18,9 @@ func set_value(new_value: int) -> void:
 	if value_label:
 		update_display()
 
+func get_value() -> int:
+	return value
+
 func update_display() -> void:
 	value_label.text = str(value)
 	title = "Number: " + str(value)

@@ -11,11 +11,51 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main")
 
+[node name="ToolPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ToolPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ToolPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "Create Node:"
+vertical_alignment = 1
+
+[node name="AddButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "+ Add"
+
+[node name="SubtractButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "- Subtract"
+
+[node name="MultiplyButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "× Multiply"
+
+[node name="DivideButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "÷ Divide"
+
 [node name="GraphEdit" type="GraphEdit" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 60.0
 offset_right = 768.0
 offset_bottom = 432.0
 grow_horizontal = 2
