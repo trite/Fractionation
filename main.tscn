@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://ufotkakw2h6"]
+[gd_scene load_steps=4 format=3 uid="uid://ufotkakw2h6"]
 
 [ext_resource type="Script" uid="uid://lnecpymsjlar" path="res://main.gd" id="1_main"]
+[ext_resource type="Theme" path="res://theme.tres" id="2_theme"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 3
+background_color = Color(0.02, 0.02, 0.02, 1)
+glow_enabled = true
+glow_intensity = 1.5
+glow_strength = 1.2
+glow_bloom = 0.3
+glow_blend_mode = 0
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -9,7 +19,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
 
 [node name="ToolPanel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -39,24 +53,24 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "Create Node (100 tokens):"
+text = "Create Node (100 tokens) | Drag connection to empty space to disconnect:"
 vertical_alignment = 1
 
 [node name="AddButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "+ Add"
+text = "+ Add (A)"
 
 [node name="SubtractButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "- Subtract"
+text = "- Subtract (S)"
 
 [node name="MultiplyButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "× Multiply"
+text = "× Multiply (M)"
 
 [node name="DivideButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
-text = "÷ Divide"
+text = "÷ Divide (D)"
 
 [node name="VSeparator2" type="VSeparator" parent="ToolPanel/MarginContainer/HBoxContainer"]
 layout_mode = 2
@@ -64,7 +78,7 @@ layout_mode = 2
 [node name="DuplicatorButton" type="Button" parent="ToolPanel/MarginContainer/HBoxContainer"]
 visible = false
 layout_mode = 2
-text = "Duplicate (200)"
+text = "Duplicate (U) 200"
 
 [node name="GraphEdit" type="GraphEdit" parent="."]
 layout_mode = 1
@@ -76,8 +90,23 @@ offset_right = 768.0
 offset_bottom = 432.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/grid_major = Color(0, 0.5, 0, 0.3)
+theme_override_colors/grid_minor = Color(0, 0.3, 0, 0.15)
+theme_override_colors/selection_fill = Color(0, 1, 0, 0.2)
+theme_override_colors/selection_stroke = Color(0, 1, 0, 1)
+theme_override_colors/connection_valid_target_tint = Color(0.5, 1, 0.5, 1)
+theme_override_colors/connection_hover_tint = Color(1, 1, 1, 1)
+theme_override_colors/activity = Color(0, 1, 0, 1)
+theme_override_constants/port_hotzone_outer_extent = 20
+theme_override_constants/port_hotzone_inner_extent = 12
+theme_override_constants/bezier_len_pos = 80
+theme_override_constants/bezier_len_neg = 80
 right_disconnects = true
 show_zoom_label = true
+snapping_enabled = true
+snapping_distance = 20
+connection_lines_curvature = 0.6
+connection_lines_thickness = 3.0
 
 [node name="WinScreen" type="ColorRect" parent="."]
 visible = false
@@ -87,7 +116,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.8)
+color = Color(0, 0, 0, 0.9)
 
 [node name="Label" type="Label" parent="WinScreen"]
 layout_mode = 1
@@ -96,13 +125,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -25.0
-offset_right = 100.0
-offset_bottom = 25.0
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 48
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0.5, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 72
 text = "You Won!"
 horizontal_alignment = 1
 vertical_alignment = 1

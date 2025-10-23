@@ -7,6 +7,9 @@ title = "Number"
 resizable = true
 draggable = true
 selectable = true
+theme_override_colors/title_color = Color(0, 1, 0, 1)
+theme_override_styles/panel = null
+theme_override_styles/panel_selected = null
 script = ExtResource("1_number_node")
 
 [node name="ValueLabel" type="Label" parent="."]

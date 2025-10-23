@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(godot:*)",
+      "Bash(\"C:\\stuff\\Godot\\v4.5\\Godot_v4.5-stable_win64.exe\" --headless --quit)",
+      "Bash(\"C:\\stuff\\Godot\\v4.5\\Godot_v4.5-stable_win64.exe\" --headless --path \"C:\\stuff\\git\\fractionation\" --script res://custom_graph/game_main.gd --quit)",
+      "Bash(\"C:\\stuff\\Godot\\v4.5\\Godot_v4.5-stable_win64.exe\" --headless --path \"C:\\stuff\\git\\fractionation\" res://custom_graph/game_main.tscn --quit)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

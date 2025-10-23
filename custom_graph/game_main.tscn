@@ -1,0 +1,94 @@
+[gd_scene load_steps=6 format=3 uid="uid://c7xqj8yv3bwfl"]
+
+[ext_resource type="Script" path="res://custom_graph/game_main.gd" id="1_main"]
+[ext_resource type="Script" path="res://custom_graph/custom_graph_view.gd" id="2_view"]
+[ext_resource type="Theme" uid="uid://c4juwxghd87mf" path="res://theme.tres" id="3_theme"]
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 1.5
+glow_strength = 1.2
+glow_bloom = 0.3
+glow_blend_mode = 0
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_1"]
+
+[node name="GameMain" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+camera_attributes = SubResource("CameraAttributesPractical_1")
+
+[node name="CustomGraphView" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_view")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="TokenPanel" type="PanelContainer" parent="UILayer"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 60.0
+
+[node name="TokenLabel" type="Label" parent="UILayer/TokenPanel"]
+layout_mode = 2
+text = "Tokens: 500"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ToolPanel" type="VBoxContainer" parent="UILayer"]
+offset_left = 10.0
+offset_top = 70.0
+offset_right = 200.0
+offset_bottom = 300.0
+
+[node name="InstructionsPanel" type="PanelContainer" parent="UILayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -310.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 250.0
+grow_horizontal = 0
+
+[node name="InstructionsLabel" type="Label" parent="UILayer/InstructionsPanel"]
+layout_mode = 2
+text = "FRACTIONATION
+
+CONNECTIONS:
+• Click/drag ports to connect
+• Click connections to break them
+
+NODE MANIPULATION:
+• Left-click drag to move nodes
+• Right-click node to pick it up
+• New nodes spawn at cursor (held)
+• Left-click to drop held node
+• Press F while holding to auto-connect
+• Press G while holding to auto-disconnect
+• Press R while holding to rotate
+
+SHORTCUTS:
+• A = Add, S = Subtract
+• Q = Multiply, W = Divide
+• D = Duplicator (when unlocked)
+
+CAMERA:
+• Mouse wheel to zoom"
+autowrap_mode = 2
