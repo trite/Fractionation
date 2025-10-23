@@ -5,10 +5,17 @@ extends Control
 @onready var subtract_button: Button = $ToolPanel/MarginContainer/HBoxContainer/SubtractButton
 @onready var multiply_button: Button = $ToolPanel/MarginContainer/HBoxContainer/MultiplyButton
 @onready var divide_button: Button = $ToolPanel/MarginContainer/HBoxContainer/DivideButton
+@onready var token_label: Label = $ToolPanel/MarginContainer/HBoxContainer/TokenLabel
+@onready var win_screen: ColorRect = $WinScreen
 
 # Track which nodes are starting nodes (cannot be deleted)
 var starting_nodes: Array[String] = []
+var target_nodes: Array[String] = []
 var node_counter: int = 0
+
+# Token system
+const OPERATION_COST: int = 100
+var tokens: int = 500
 
 func _ready() -> void:
 	# Connect GraphEdit signals
@@ -24,6 +31,12 @@ func _ready() -> void:
 
 	# Create the two starting nodes
 	create_starting_nodes()
+
+	# Create target nodes
+	create_target_nodes()
+
+	# Update token display
+	update_token_display()
 
 func create_starting_nodes() -> void:
 	# Create node with value 1
@@ -41,6 +54,28 @@ func create_number_node(node_name: String, value: int, position: Vector2) -> Gra
 	node.set_value(value)
 	graph_edit.add_child(node)
 	return node
+
+func create_target_nodes() -> void:
+	# Create target node for 42
+	var target1 = create_target_node("target_42", 42, Vector2(100, 400))
+	target_nodes.append("target_42")
+	starting_nodes.append("target_42")  # Prevent deletion
+
+	# Create target node for 37
+	var target2 = create_target_node("target_37", 37, Vector2(400, 400))
+	target_nodes.append("target_37")
+	starting_nodes.append("target_37")  # Prevent deletion
+
+func create_target_node(node_name: String, target: int, position: Vector2) -> GraphNode:
+	var node = preload("res://target_node.tscn").instantiate()
+	node.name = node_name
+	node.position_offset = position
+	node.set_target(target)
+	graph_edit.add_child(node)
+	return node
+
+func update_token_display() -> void:
+	token_label.text = "Tokens: " + str(tokens)
 
 func _on_connection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
 	var existing_connections = graph_edit.get_connection_list()
@@ -71,6 +106,9 @@ func _on_connection_request(from_node: StringName, from_port: int, to_node: Stri
 		var value = get_node_output_value(source_node)
 		update_node_input(to_node, to_port, value)
 
+	# Check win condition after connection
+	check_win_condition()
+
 func _on_disconnection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
 	graph_edit.disconnect_node(from_node, from_port, to_node, to_port)
 	# Clear the input on the target node
@@ -83,12 +121,26 @@ func _on_delete_nodes_request(nodes: Array[StringName]) -> void:
 			print("Cannot delete starting node: ", node_name)
 			continue
 
-		# Get the node and remove it
+		# Refund tokens if it's an operation node
 		var node = graph_edit.get_node(NodePath(node_name))
+		if node and node.has_method("get_result"):  # It's an operation node
+			tokens += OPERATION_COST
+			update_token_display()
+
+		# Get the node and remove it
 		if node:
 			node.queue_free()
 
 func create_operation_node(operation: int) -> void:
+	# Check if we have enough tokens
+	if tokens < OPERATION_COST:
+		print("Not enough tokens! Need ", OPERATION_COST, ", have ", tokens)
+		return
+
+	# Deduct tokens
+	tokens -= OPERATION_COST
+	update_token_display()
+
 	var node = preload("res://operation_node.tscn").instantiate()
 	node.name = "operation_" + str(node_counter)
 	node_counter += 1
@@ -128,7 +180,15 @@ func update_node_input(node_name: StringName, port: int, value: Variant) -> void
 	if not node:
 		return
 
-	# Update the appropriate input based on the port
+	# Handle target nodes
+	if node.has_method("set_input"):
+		if value != null:
+			node.set_input(value)
+		else:
+			node.clear_input()
+		return
+
+	# Update the appropriate input based on the port for operation nodes
 	if node.has_method("set_input_a") and node.has_method("set_input_b"):
 		if port == 0:
 			if value != null:
@@ -158,3 +218,23 @@ func propagate_value_changes(source_node_name: StringName) -> void:
 		if connection["from_node"] == source_node_name:
 			# This node is the source, update the target
 			update_node_input(connection["to_node"], connection["to_port"], output_value)
+
+func check_win_condition() -> void:
+	# Check if all target nodes are solved
+	var all_solved := true
+
+	for target_name in target_nodes:
+		var target_node = graph_edit.get_node(NodePath(target_name))
+		if target_node and target_node.has_method("is_solved"):
+			if not target_node.is_solved():
+				all_solved = false
+				break
+		else:
+			all_solved = false
+			break
+
+	if all_solved:
+		show_win_screen()
+
+func show_win_screen() -> void:
+	win_screen.visible = true
