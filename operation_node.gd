@@ -12,18 +12,33 @@ var input_a: Variant = null
 var input_b: Variant = null
 var result: Variant = null
 
-@onready var input1_label: Label = $VBoxContainer/Input1
-@onready var input2_label: Label = $VBoxContainer/Input2
-@onready var result_label: Label = $VBoxContainer/Result
+@onready var input1_label: Label = $Input1
+@onready var input2_label: Label = $Input2
+@onready var result_label: Label = $Result
 
 func _ready() -> void:
 	# Set up slots: 2 inputs (left side) and 1 output (right side)
+	print("OperationNode setup. Child count: ", get_child_count())
+	for i in range(get_child_count()):
+		print("  Child ", i, ": ", get_child(i).name if get_child(i) else "null")
+
 	# Slot 0: Input A (left only)
-	set_slot(0, true, 0, Color.LIGHT_BLUE, false, 0, Color.WHITE)
+	set_slot_enabled_left(0, true)
+	set_slot_enabled_right(0, false)
+	set_slot_type_left(0, 0)
+	set_slot_color_left(0, Color.LIGHT_BLUE)
+
 	# Slot 1: Input B (left only)
-	set_slot(1, true, 0, Color.LIGHT_BLUE, false, 0, Color.WHITE)
+	set_slot_enabled_left(1, true)
+	set_slot_enabled_right(1, false)
+	set_slot_type_left(1, 0)
+	set_slot_color_left(1, Color.LIGHT_BLUE)
+
 	# Slot 3: Result/Output (right only)
-	set_slot(3, false, 0, Color.WHITE, true, 0, Color.LIGHT_GREEN)
+	set_slot_enabled_left(3, false)
+	set_slot_enabled_right(3, true)
+	set_slot_type_right(3, 0)
+	set_slot_color_right(3, Color.LIGHT_GREEN)
 
 	update_display()
 

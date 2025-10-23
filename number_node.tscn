@@ -9,54 +9,48 @@ draggable = true
 selectable = true
 script = ExtResource("1_number_node")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="ValueLabel" type="Label" parent="VBoxContainer"]
+[node name="ValueLabel" type="Label" parent="."]
 layout_mode = 2
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Slots" type="VBoxContainer" parent="VBoxContainer"]
+[node name="Slot0" type="Label" parent="."]
 layout_mode = 2
+text = "Out 0"
 
-[node name="Slot0" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot1" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 0"
+text = "Out 1"
 
-[node name="Slot1" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot2" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 1"
+text = "Out 2"
 
-[node name="Slot2" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot3" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 2"
+text = "Out 3"
 
-[node name="Slot3" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot4" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 3"
+text = "Out 4"
 
-[node name="Slot4" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot5" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 4"
+text = "Out 5"
 
-[node name="Slot5" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot6" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 5"
+text = "Out 6"
 
-[node name="Slot6" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot7" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 6"
+text = "Out 7"
 
-[node name="Slot7" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot8" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 7"
+text = "Out 8"
 
-[node name="Slot8" type="Label" parent="VBoxContainer/Slots"]
+[node name="Slot9" type="Label" parent="."]
 layout_mode = 2
-text = "Slot 8"
-
-[node name="Slot9" type="Label" parent="VBoxContainer/Slots"]
-layout_mode = 2
-text = "Slot 9"
+text = "Out 9"
