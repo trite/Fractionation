@@ -12,9 +12,7 @@ var input_a: Variant = null
 var input_b: Variant = null
 var result: Variant = null
 
-@onready var input1_label: Label = $Input1
-@onready var input2_label: Label = $Input2
-@onready var result_label: Label = $Result
+@onready var equation_label: Label = $Equation
 
 func _ready() -> void:
 	# Set up slots: 2 inputs (left side) and 1 output (right side)
@@ -34,11 +32,11 @@ func _ready() -> void:
 	set_slot_type_left(1, 0)
 	set_slot_color_left(1, Color.LIGHT_BLUE)
 
-	# Slot 3: Result/Output (right only)
-	set_slot_enabled_left(3, false)
-	set_slot_enabled_right(3, true)
-	set_slot_type_right(3, 0)
-	set_slot_color_right(3, Color.LIGHT_GREEN)
+	# Slot 2: Result/Output (right only)
+	set_slot_enabled_left(2, false)
+	set_slot_enabled_right(2, true)
+	set_slot_type_right(2, 0)
+	set_slot_color_right(2, Color.LIGHT_GREEN)
 
 	update_display()
 
@@ -88,8 +86,8 @@ func get_result() -> Variant:
 	return result
 
 func update_display() -> void:
-	# Don't update if labels aren't ready yet
-	if not input1_label or not input2_label or not result_label:
+	# Don't update if label isn't ready yet
+	if not equation_label:
 		return
 
 	var op_symbol := ""
@@ -111,24 +109,31 @@ func update_display() -> void:
 
 	title = op_name
 
+	# Format input A
+	var input_a_str := "__"
 	if input_a != null:
-		input1_label.text = "Input A: " + str(input_a)
-	else:
-		input1_label.text = "Input A: -"
+		if input_a is float:
+			input_a_str = "%.2f" % input_a
+		else:
+			input_a_str = str(input_a)
 
+	# Format input B
+	var input_b_str := "__"
 	if input_b != null:
-		input2_label.text = "Input B: " + str(input_b)
-	else:
-		input2_label.text = "Input B: -"
+		if input_b is float:
+			input_b_str = "%.2f" % input_b
+		else:
+			input_b_str = str(input_b)
 
+	# Format output - only show if both inputs are connected
+	var output_str := "__"
 	if result != null:
-		# Format the result nicely
 		if result is float:
-			result_label.text = "Result: %.2f" % result
+			output_str = "%.2f" % result
 		else:
-			result_label.text = "Result: " + str(result)
-	else:
-		if input_a != null and input_b != null and operation == Operation.DIVIDE and input_b == 0:
-			result_label.text = "Result: Error (÷0)"
-		else:
-			result_label.text = "Result: -"
+			output_str = str(result)
+	elif input_a != null and input_b != null and operation == Operation.DIVIDE and input_b == 0:
+		output_str = "ERR"
+
+	# Build the equation string
+	equation_label.text = input_a_str + " " + op_symbol + " " + input_b_str + " = " + output_str
