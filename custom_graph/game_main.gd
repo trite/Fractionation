@@ -39,15 +39,16 @@ func _ready() -> void:
 	graph_view.connection_removed.connect(_on_connection_removed)
 
 func create_starting_nodes() -> void:
-	var viewport_size = get_viewport_rect().size
+	# Position nodes in world coordinates
+	# Camera starts at (0, 0) with zoom 1.0, so position relative to origin
 
-	# Create single starting number node (1)
+	# Create single starting number node (1) - left side
 	var num_node_1 = NumberNode.new(1, true)
-	num_node_1.position = Vector2(viewport_size.x * 0.20, viewport_size.y * 0.50)
+	num_node_1.position = Vector2(-400, 0)
 	graph_view.add_node(num_node_1)
 
-	# Create single target node (3)
-	create_target_node(3, Vector2(viewport_size.x * 0.80, viewport_size.y * 0.50))
+	# Create single target node (3) - right side
+	create_target_node(3, Vector2(400, 0))
 
 func create_target_node(value: int, pos: Vector2) -> void:
 	var target = TargetNode.new(value)
@@ -161,9 +162,8 @@ func complete_first_milestone() -> void:
 	num_node_5.position = spawn_pos
 	graph_view.add_node(num_node_5)
 
-	# Add new target: 37
-	var viewport_size = get_viewport_rect().size
-	create_target_node(37, Vector2(viewport_size.x * 0.80, viewport_size.y * 0.33))
+	# Add new target: 37 (above first target)
+	create_target_node(37, Vector2(400, -200))
 
 	print("First milestone complete! +500 tokens, Node 5 spawned, target 37 added.")
 
@@ -187,9 +187,8 @@ func complete_second_milestone() -> void:
 	button.pressed.connect(spawn_duplicator_node)
 	tool_panel.add_child(button)
 
-	# Add new target: 42
-	var viewport_size = get_viewport_rect().size
-	create_target_node(42, Vector2(viewport_size.x * 0.80, viewport_size.y * 0.66))
+	# Add new target: 42 (below first target)
+	create_target_node(42, Vector2(400, 200))
 
 	print("Second milestone complete! +300 tokens, Duplicator unlocked, target 42 added.")
 
@@ -206,9 +205,8 @@ func complete_third_milestone() -> void:
 		"Three targets solved! +600 tokens. New target: 512"
 	)
 
-	# Add new target: 512
-	var viewport_size = get_viewport_rect().size
-	create_target_node(512, Vector2(viewport_size.x * 0.80, viewport_size.y * 0.80))
+	# Add new target: 512 (further below)
+	create_target_node(512, Vector2(400, 400))
 
 	print("Third milestone complete! +600 tokens, target 512 added.")
 
@@ -226,23 +224,26 @@ func check_win_condition() -> void:
 func find_smart_spawn_position() -> Vector2:
 	# Smart placement algorithm - finds a good spot with clearance from other nodes
 	# This uses a grid-based sampling approach common in video game AI
-	var viewport_size = get_viewport_rect().size
 
-	# Define search grid - sample positions across the viewport
+	# Define world space search area (camera starts at 0,0)
+	var search_min = Vector2(-600, -400)
+	var search_max = Vector2(600, 400)
+	var search_size = search_max - search_min
+
+	# Define search grid - sample positions across world space
 	var candidates: Array[Dictionary] = []
 	var grid_divisions = 8  # 8x8 grid of candidate positions
 
 	for x in range(1, grid_divisions):
 		for y in range(1, grid_divisions):
-			var pos = Vector2(
-				viewport_size.x * (float(x) / grid_divisions),
-				viewport_size.y * (float(y) / grid_divisions)
+			var pos = search_min + Vector2(
+				search_size.x * (float(x) / grid_divisions),
+				search_size.y * (float(y) / grid_divisions)
 			)
 
-			# Skip center area (middle 30% of screen)
-			var center = viewport_size / 2.0
-			var dist_from_center = pos.distance_to(center)
-			if dist_from_center < min(viewport_size.x, viewport_size.y) * 0.15:
+			# Skip center area (middle of world)
+			var dist_from_center = pos.distance_to(Vector2.ZERO)
+			if dist_from_center < 150:
 				continue
 
 			# Calculate minimum distance to any existing node
@@ -264,7 +265,7 @@ func find_smart_spawn_position() -> Vector2:
 		return candidates[0].position
 
 	# Fallback: return a safe position on the left side
-	return Vector2(viewport_size.x * 0.25, viewport_size.y * 0.5)
+	return Vector2(-300, 0)
 
 func _input(event: InputEvent) -> void:
 	# Keyboard shortcuts for spawning nodes
