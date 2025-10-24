@@ -35,6 +35,17 @@ jobs:
           archive_output: false
           export_debug: false
 
+      - name: Add .nojekyll and cache headers
+        run: |
+          # Add .nojekyll to prevent GitHub Pages from processing files
+          touch ${{ steps.export.outputs.build_directory }}/Web/.nojekyll
+
+          # Add _headers file for Netlify-style cache control (GitHub Pages doesn't support this, but good practice)
+          echo "/*
+            Cache-Control: no-cache, no-store, must-revalidate
+            Pragma: no-cache
+            Expires: 0" > ${{ steps.export.outputs.build_directory }}/Web/_headers
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
