@@ -6,6 +6,7 @@ const ConnectionManager = preload("res://custom_graph/connection_manager.gd")
 signal connection_created(connection: GraphConnection)
 signal connection_removed(connection: GraphConnection)
 signal node_selected(node: CustomGraphNode)
+signal node_deleted(node: CustomGraphNode)
 
 # Collections
 var nodes: Array[CustomGraphNode] = []
@@ -383,6 +384,9 @@ func delete_node(node: CustomGraphNode) -> void:
 	# Clear the dragged node reference
 	if dragged_node == node:
 		dragged_node = null
+
+	# Emit signal before removal so listeners can access node metadata
+	node_deleted.emit(node)
 
 	# Remove the node (connections will be cleaned up automatically)
 	remove_node(node)

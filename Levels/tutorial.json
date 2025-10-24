@@ -1,0 +1,125 @@
+[
+  {
+	"name": "Tutorial: First Steps",
+	"description": "Learn the basics of fractionation",
+	"starting_tokens": 200,
+	"refund_percentage": 1.0,
+	"starting_nodes": [
+	  {"value": 1, "type": "Integer"}
+	],
+	"target_nodes": [
+	  {"value": 3, "type": "Integer"}
+	],
+	"available_node_types": ["add", "subtract", "multiply", "divide"],
+	"node_costs": {
+	  "add": 100,
+	  "subtract": 100,
+	  "multiply": 100,
+	  "divide": 100,
+	  "duplicator": 200
+	},
+	"milestones": [
+	  {
+		"trigger_type": "solve_n_targets",
+		"trigger_params": {"n": 1},
+		"rewards": [
+		  {"type": "tokens", "amount": 500},
+		  {"type": "starter_node", "value": 5, "node_type": "Integer"},
+		  {"type": "target_node", "value": 37, "node_type": "Integer"}
+		],
+		"notification_title": "First Milestone Complete!",
+		"notification_message": "Great job! +500 tokens. Node 5 unlocked. New target: 37"
+	  },
+	  {
+		"trigger_type": "solve_n_targets",
+		"trigger_params": {"n": 2},
+		"rewards": [
+		  {"type": "tokens", "amount": 300},
+		  {"type": "unlock_node_type", "node_type": "duplicator"},
+		  {"type": "target_node", "value": 42, "node_type": "Integer"}
+		],
+		"notification_title": "Second Milestone Complete!",
+		"notification_message": "Excellent! +300 tokens. Duplicator unlocked. New target: 42"
+	  },
+	  {
+		"trigger_type": "solve_n_targets",
+		"trigger_params": {"n": 3},
+		"rewards": [
+		  {"type": "tokens", "amount": 900},
+		  {"type": "target_node", "value": 512, "node_type": "Integer"}
+		],
+		"notification_title": "Third Milestone Complete!",
+		"notification_message": "Amazing! +900 tokens. New target: 512"
+	  },
+	  {
+		"trigger_type": "solve_n_targets",
+		"trigger_params": {"n": 4},
+		"rewards": [],
+		"notification_title": "Level Complete!",
+		"notification_message": "You've mastered the basics!"
+	  }
+	]
+  },
+  {
+	"name": "Challenge: Big Numbers",
+	"description": "Reach higher values with limited resources",
+	"starting_tokens": 500,
+	"refund_percentage": 0.75,
+	"starting_nodes": [
+	  {"value": 2, "type": "Integer"},
+	  {"value": 3, "type": "Integer"}
+	],
+	"target_nodes": [
+	  {"value": 100, "type": "Integer"}
+	],
+	"available_node_types": ["add", "subtract", "multiply", "divide", "duplicator"],
+	"node_costs": {
+	  "add": 100,
+	  "subtract": 100,
+	  "multiply": 100,
+	  "divide": 100,
+	  "duplicator": 200
+	},
+	"milestones": [
+	  {
+		"trigger_type": "solve_specific_target",
+		"trigger_params": {"target_value": 100},
+		"rewards": [],
+		"notification_title": "Level Complete!",
+		"notification_message": "You reached 100! Well done!"
+	  }
+	]
+  },
+  {
+	"name": "Challenge: Total Value",
+	"description": "Reach a combined total across all targets",
+	"starting_tokens": 600,
+	"refund_percentage": 0.5,
+	"starting_nodes": [
+	  {"value": 1, "type": "Integer"},
+	  {"value": 10, "type": "Integer"}
+	],
+	"target_nodes": [
+	  {"value": 25, "type": "Integer"},
+	  {"value": 50, "type": "Integer"},
+	  {"value": 75, "type": "Integer"}
+	],
+	"available_node_types": ["add", "subtract", "multiply", "divide", "duplicator"],
+	"node_costs": {
+	  "add": 80,
+	  "subtract": 80,
+	  "multiply": 120,
+	  "divide": 120,
+	  "duplicator": 200
+	},
+	"milestones": [
+	  {
+		"trigger_type": "reach_total_value",
+		"trigger_params": {"total": 150},
+		"rewards": [],
+		"notification_title": "Level Complete!",
+		"notification_message": "Total value of 150 reached!"
+	  }
+	]
+  }
+]
