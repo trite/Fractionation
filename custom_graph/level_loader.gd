@@ -28,7 +28,8 @@ func get_json_files_sorted() -> Array[String]:
 	var file_name = dir.get_next()
 
 	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".json"):
+		# Only load .json files, but NOT .solutions.json files
+		if not dir.current_is_dir() and file_name.ends_with(".json") and not file_name.ends_with(".solutions.json"):
 			json_files.append(LEVELS_FOLDER + file_name)
 		file_name = dir.get_next()
 

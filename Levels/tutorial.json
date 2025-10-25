@@ -34,12 +34,12 @@
 		"trigger_type": "solve_n_targets",
 		"trigger_params": {"n": 2},
 		"rewards": [
-		  {"type": "tokens", "amount": 300},
+		  {"type": "tokens", "amount": 500},
 		  {"type": "unlock_node_type", "node_type": "duplicator"},
 		  {"type": "target_node", "value": 42, "node_type": "Integer"}
 		],
 		"notification_title": "Second Milestone Complete!",
-		"notification_message": "Excellent! +300 tokens. Duplicator unlocked. New target: 42"
+		"notification_message": "Excellent! +500 tokens. Duplicator unlocked. New target: 42"
 	  },
 	  {
 		"trigger_type": "solve_n_targets",
@@ -64,7 +64,7 @@
 	"name": "Challenge: Big Numbers",
 	"description": "Reach higher values with limited resources",
 	"starting_tokens": 500,
-	"refund_percentage": 0.75,
+	"refund_percentage": 1.0,
 	"starting_nodes": [
 	  {"value": 2, "type": "Integer"},
 	  {"value": 3, "type": "Integer"}
@@ -94,7 +94,7 @@
 	"name": "Challenge: Total Value",
 	"description": "Reach a combined total across all targets",
 	"starting_tokens": 600,
-	"refund_percentage": 0.5,
+	"refund_percentage": 1.0,
 	"starting_nodes": [
 	  {"value": 1, "type": "Integer"},
 	  {"value": 10, "type": "Integer"}

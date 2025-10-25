@@ -1,0 +1,381 @@
+{
+  "solutions": [
+    {
+      "level_name": "Tutorial: First Steps",
+      "milestone_index": 0,
+      "description": "Reach 3 from starting node 1: (1+1)+1 = 3",
+      "steps": [
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add1"
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add1",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add1",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add2"
+        },
+        {
+          "action": "connect",
+          "from": "add1",
+          "from_port": 1,
+          "to": "add2",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add2",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "add2",
+          "from_port": 1,
+          "to": "target_0",
+          "to_port": 0
+        }
+      ]
+    },
+    {
+      "level_name": "Tutorial: First Steps",
+      "milestone_index": 1,
+      "description": "Reach 37 from nodes 1 and 5: (((5*5)+5)+5)+(1+1) = 37",
+      "steps": [
+        {
+          "action": "spawn",
+          "node_type": "multiply",
+          "node_id": "mult1"
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "mult1",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "mult1",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add3"
+        },
+        {
+          "action": "connect",
+          "from": "mult1",
+          "from_port": 1,
+          "to": "add3",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "add3",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add4"
+        },
+        {
+          "action": "connect",
+          "from": "add3",
+          "from_port": 1,
+          "to": "add4",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "add4",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add5"
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add5",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add5",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add6"
+        },
+        {
+          "action": "connect",
+          "from": "add4",
+          "from_port": 1,
+          "to": "add6",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "add5",
+          "from_port": 1,
+          "to": "add6",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "add6",
+          "from_port": 1,
+          "to": "target_1",
+          "to_port": 0
+        }
+      ]
+    },
+    {
+      "level_name": "Tutorial: First Steps",
+      "milestone_index": 2,
+      "description": "Reach 42 from nodes 1 and 5: (5+1)*((5+1)+1) = 6*7 = 42",
+      "steps": [
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add7"
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "add7",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add7",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "duplicator",
+          "node_id": "dup1"
+        },
+        {
+          "action": "connect",
+          "from": "add7",
+          "from_port": 1,
+          "to": "dup1",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add8"
+        },
+        {
+          "action": "connect",
+          "from": "dup1",
+          "from_port": 1,
+          "to": "add8",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add8",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "multiply",
+          "node_id": "mult2"
+        },
+        {
+          "action": "connect",
+          "from": "dup1",
+          "from_port": 2,
+          "to": "mult2",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "add8",
+          "from_port": 1,
+          "to": "mult2",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "mult2",
+          "from_port": 1,
+          "to": "target_2",
+          "to_port": 0
+        }
+      ]
+    },
+    {
+      "level_name": "Tutorial: First Steps",
+      "milestone_index": 3,
+      "description": "Reach 512 from nodes 1 and 5: ((5-1)*(5-1))*((5-1)*(5-1))*(1+1) = 256*2 = 512",
+      "steps": [
+        {
+          "action": "spawn",
+          "node_type": "subtract",
+          "node_id": "sub1"
+        },
+        {
+          "action": "connect",
+          "from": "starter_1",
+          "from_port": 0,
+          "to": "sub1",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "sub1",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "duplicator",
+          "node_id": "dup2"
+        },
+        {
+          "action": "connect",
+          "from": "sub1",
+          "from_port": 1,
+          "to": "dup2",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "multiply",
+          "node_id": "mult3"
+        },
+        {
+          "action": "connect",
+          "from": "dup2",
+          "from_port": 1,
+          "to": "mult3",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "dup2",
+          "from_port": 2,
+          "to": "mult3",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "duplicator",
+          "node_id": "dup3"
+        },
+        {
+          "action": "connect",
+          "from": "mult3",
+          "from_port": 1,
+          "to": "dup3",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "multiply",
+          "node_id": "mult4"
+        },
+        {
+          "action": "connect",
+          "from": "dup3",
+          "from_port": 1,
+          "to": "mult4",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "dup3",
+          "from_port": 2,
+          "to": "mult4",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "add",
+          "node_id": "add9"
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add9",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "starter_0",
+          "from_port": 0,
+          "to": "add9",
+          "to_port": 0
+        },
+        {
+          "action": "spawn",
+          "node_type": "multiply",
+          "node_id": "mult5"
+        },
+        {
+          "action": "connect",
+          "from": "mult4",
+          "from_port": 1,
+          "to": "mult5",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "add9",
+          "from_port": 1,
+          "to": "mult5",
+          "to_port": 0
+        },
+        {
+          "action": "connect",
+          "from": "mult5",
+          "from_port": 1,
+          "to": "target_3",
+          "to_port": 0
+        }
+      ]
+    }
+  ]
+}

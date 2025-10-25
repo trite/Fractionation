@@ -10,6 +10,8 @@ const LevelData = preload("res://custom_graph/level_data.gd")
 const Milestone = preload("res://custom_graph/milestone.gd")
 const LevelLoader = preload("res://custom_graph/level_loader.gd")
 const LevelCompleteScreen = preload("res://custom_graph/level_complete_screen.gd")
+const SolutionLoader = preload("res://custom_graph/solution_loader.gd")
+const SolutionPlayer = preload("res://custom_graph/solution_player.gd")
 
 @onready var graph_view: CustomGraphView = $CustomGraphView
 @onready var token_label: Label = $UILayer/TokenPanel/TokenLabel
@@ -17,6 +19,8 @@ const LevelCompleteScreen = preload("res://custom_graph/level_complete_screen.gd
 
 var notification_system: NotificationSystem
 var level_complete_screen: LevelCompleteScreen
+var solution_player: SolutionPlayer
+var persistent_next_level_button: Button  # Shown when user continues playing after level complete
 
 # Level system
 var all_levels: Array = []
@@ -29,6 +33,10 @@ var completed_milestone_indices: Array = []
 var target_nodes: Array = []
 var unlocked_node_types: Array = []
 
+# Node ID tracking for solutions
+var starter_nodes: Array = []  # Track starting nodes in order
+var spawned_node_count: int = 0  # For positioning spawned solution nodes
+
 func _ready() -> void:
 	# Initialize notification system (add to UILayer for proper z-ordering)
 	notification_system = NotificationSystem.new()
@@ -37,7 +45,22 @@ func _ready() -> void:
 	# Initialize level complete screen
 	level_complete_screen = LevelCompleteScreen.new()
 	level_complete_screen.next_level_pressed.connect(_on_next_level_pressed)
+	level_complete_screen.continue_playing_pressed.connect(_on_continue_playing_pressed)
 	$UILayer.add_child(level_complete_screen)
+
+	# Initialize solution player
+	solution_player = SolutionPlayer.new()
+	add_child(solution_player)
+
+	# Create persistent next level button (hidden initially)
+	persistent_next_level_button = Button.new()
+	persistent_next_level_button.text = "Next Level >>"
+	persistent_next_level_button.custom_minimum_size = Vector2(150, 40)
+	persistent_next_level_button.position = Vector2(10, 10)  # Top-left corner
+	persistent_next_level_button.pressed.connect(_on_persistent_next_level_pressed)
+	apply_button_style(persistent_next_level_button)
+	persistent_next_level_button.hide()
+	$UILayer.add_child(persistent_next_level_button)
 
 	# Connect signals
 	graph_view.connection_created.connect(_on_connection_created)
@@ -71,6 +94,8 @@ func load_level(level_index: int) -> void:
 	# Initialize game state from level data
 	tokens = current_level.starting_tokens
 	unlocked_node_types = current_level.available_node_types.duplicate()
+	starter_nodes.clear()
+	spawned_node_count = 0
 
 	# Create starting nodes
 	var x_offset = -400
@@ -78,6 +103,7 @@ func load_level(level_index: int) -> void:
 		var num_node = NumberNode.new(node_data.value, true)
 		num_node.position = Vector2(x_offset, 0)
 		graph_view.add_node(num_node)
+		starter_nodes.append(num_node)  # Track for solution playback
 		x_offset += 150  # Space them out
 
 	# Create target nodes
@@ -103,6 +129,38 @@ func clear_level() -> void:
 	# Clear UI buttons
 	for child in tool_panel.get_children():
 		child.queue_free()
+
+func reset_board() -> void:
+	"""Reset the current level to its initial state, removing spawned nodes and refunding tokens"""
+	if current_level == null:
+		return
+
+	print("Resetting board...")
+
+	# Remove all spawned nodes (not starters or targets)
+	for node in graph_view.nodes.duplicate():
+		# Skip starting nodes and target nodes
+		if node.get("is_starting_node") == true:
+			continue
+		if node is TargetNode:
+			continue
+
+		# Remove spawned node
+		graph_view.remove_node(node)
+
+	# Reset game state to initial level state
+	tokens = current_level.starting_tokens
+	completed_milestone_indices.clear()
+	unlocked_node_types = current_level.available_node_types.duplicate()
+	spawned_node_count = 0
+
+	# Recreate UI to match initial state
+	for child in tool_panel.get_children():
+		child.queue_free()
+	setup_ui()
+	update_token_display()
+
+	print("Board reset complete. Tokens: %d" % tokens)
 
 func create_target_node(value: int, pos: Vector2) -> void:
 	var target = TargetNode.new(value)
@@ -231,6 +289,70 @@ func get_spawn_position() -> Vector2:
 	var mouse_pos = graph_view.get_local_mouse_position()
 	return graph_view.screen_to_world(mouse_pos)
 
+# Solution playback spawn methods (deducts tokens like regular gameplay)
+func spawn_operation_node_for_solution(operation: OperationNode.Operation) -> OperationNode:
+	var cost = current_level.node_costs.get(_operation_to_string(operation), 100)
+
+	# Deduct tokens just like a player would
+	if tokens < cost:
+		push_error("Solution playback: not enough tokens (%d needed, %d available)" % [cost, tokens])
+		return null
+
+	tokens -= cost
+	update_token_display()
+
+	var op_node = OperationNode.new(operation)
+	op_node.position = get_solution_spawn_position()
+	op_node.set_meta("node_cost", cost)
+	graph_view.add_node(op_node)
+
+	spawned_node_count += 1
+	return op_node
+
+func spawn_duplicator_node_for_solution() -> DuplicatorNode:
+	var cost = current_level.node_costs.get("duplicator", 200)
+
+	# Deduct tokens just like a player would
+	if tokens < cost:
+		push_error("Solution playback: not enough tokens (%d needed, %d available)" % [cost, tokens])
+		return null
+
+	tokens -= cost
+	update_token_display()
+
+	var dup_node = DuplicatorNode.new()
+	dup_node.position = get_solution_spawn_position()
+	dup_node.set_meta("node_cost", cost)
+	graph_view.add_node(dup_node)
+
+	spawned_node_count += 1
+	return dup_node
+
+func get_solution_spawn_position() -> Vector2:
+	# Place nodes in a grid layout in the center area
+	var grid_cols = 5
+	var spacing = 150
+
+	var row = spawned_node_count / grid_cols
+	var col = spawned_node_count % grid_cols
+
+	var x = -200 + col * spacing
+	var y = 100 + row * spacing
+
+	return Vector2(x, y)
+
+func _operation_to_string(operation: OperationNode.Operation) -> String:
+	match operation:
+		OperationNode.Operation.ADD:
+			return "add"
+		OperationNode.Operation.SUBTRACT:
+			return "subtract"
+		OperationNode.Operation.MULTIPLY:
+			return "multiply"
+		OperationNode.Operation.DIVIDE:
+			return "divide"
+	return ""
+
 func update_token_display() -> void:
 	token_label.text = "Tokens: " + str(tokens)
 
@@ -345,11 +467,22 @@ func show_level_complete() -> void:
 	)
 
 func _on_next_level_pressed() -> void:
+	persistent_next_level_button.hide()  # Hide persistent button when moving to next level
 	var next_index = current_level_index + 1
 	if next_index < all_levels.size():
 		load_level(next_index)
 	else:
 		print("No more levels! You've completed the game!")
+
+func _on_continue_playing_pressed() -> void:
+	"""Called when user clicks 'Continue Playing' on level complete screen"""
+	# Show persistent next level button so they can progress when ready
+	persistent_next_level_button.show()
+
+func _on_persistent_next_level_pressed() -> void:
+	"""Called when user clicks the persistent next level button"""
+	persistent_next_level_button.hide()
+	_on_next_level_pressed()
 
 func find_smart_spawn_position() -> Vector2:
 	# Smart placement algorithm - finds a good spot with clearance from other nodes
@@ -397,8 +530,87 @@ func find_smart_spawn_position() -> Vector2:
 	# Fallback: return a safe position on the left side
 	return Vector2(-300, 0)
 
+func play_level_solution() -> void:
+	"""Load and play the solution for the current level"""
+	if current_level == null:
+		print("No level loaded")
+		return
+
+	if solution_player.is_playing:
+		print("Solution already playing")
+		return
+
+	# Load solutions for this level
+	var loader = SolutionLoader.new()
+	var solutions = loader.load_solutions_for_level(current_level.level_name)
+
+	if solutions.is_empty():
+		print("No solution found for level: %s" % current_level.level_name)
+		return
+
+	# Select solution based on which milestone we should solve next
+	var solution = select_solution_for_current_state(solutions)
+
+	if solution.is_empty():
+		print("No appropriate solution found for current state")
+		return
+
+	print("Playing solution %d for: %s" % [solution.get("milestone_index", 0), current_level.level_name])
+
+	# Build node lookup dictionary (includes all current starters and targets)
+	var node_lookup = build_node_lookup()
+
+	# Start playback (will clean up conflicting nodes internally)
+	solution_player.play_solution(solution, node_lookup, self, graph_view)
+
+func select_solution_for_current_state(solutions: Array) -> Dictionary:
+	"""Select the appropriate solution based on completed milestones"""
+	# Find the next uncompleted milestone
+	var next_milestone_index = completed_milestone_indices.size()
+
+	# Find solution for this milestone index
+	for solution in solutions:
+		if solution.get("milestone_index", -1) == next_milestone_index:
+			return solution
+
+	# Fallback to first solution if no match found
+	if solutions.size() > 0:
+		print("Warning: No solution found for milestone %d, using first solution" % next_milestone_index)
+		return solutions[0]
+
+	# Return empty Dictionary instead of null
+	return {}
+
+func build_node_lookup() -> Dictionary:
+	"""Build a dictionary mapping solution IDs to actual node instances"""
+	var lookup = {}
+
+	# Find all starting nodes on the board (including milestone rewards)
+	var all_starters = []
+	for node in graph_view.nodes:
+		if node.get("is_starting_node") == true:
+			all_starters.append(node)
+
+	# Map starter nodes by index
+	for i in range(all_starters.size()):
+		var node_id = "starter_%d" % i
+		lookup[node_id] = all_starters[i]
+
+	# Map all target nodes
+	for i in range(target_nodes.size()):
+		var node_id = "target_%d" % i
+		lookup[node_id] = target_nodes[i]
+
+	print("Node lookup built: %d starters, %d targets" % [all_starters.size(), target_nodes.size()])
+	return lookup
+
 func _input(event: InputEvent) -> void:
 	if current_level == null:
+		return
+
+	# Solution playback shortcut (F5)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F5:
+		play_level_solution()
 		return
 
 	# Keyboard shortcuts for spawning nodes

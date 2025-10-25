@@ -2,10 +2,12 @@ extends Control
 class_name LevelCompleteScreen
 
 signal next_level_pressed
+signal continue_playing_pressed
 
 var title_label: Label
 var message_label: Label
 var next_button: Button
+var continue_button: Button
 
 func _ready() -> void:
 	# Explicitly set anchors to fill parent
@@ -77,22 +79,53 @@ func _ready() -> void:
 	message_label.custom_minimum_size = Vector2(450, 0)
 	vbox.add_child(message_label)
 
-	# Spacer to push button down
+	# Spacer to push buttons down
 	var middle_spacer = Control.new()
 	middle_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(middle_spacer)
+
+	# HBox for buttons
+	var button_hbox = HBoxContainer.new()
+	button_hbox.set_alignment(BoxContainer.ALIGNMENT_CENTER)
+	button_hbox.add_theme_constant_override("separation", 20)
+	vbox.add_child(button_hbox)
+
+	# Continue Playing button
+	continue_button = Button.new()
+	continue_button.text = "Continue Playing"
+	continue_button.custom_minimum_size = Vector2(200, 50)
+	continue_button.add_theme_font_size_override("font_size", 20)
+	_apply_button_style(continue_button)
+	continue_button.pressed.connect(_on_continue_pressed)
+	button_hbox.add_child(continue_button)
 
 	# Next level button
 	next_button = Button.new()
 	next_button.text = "Next Level"
 	next_button.custom_minimum_size = Vector2(200, 50)
-	next_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	next_button.add_theme_font_size_override("font_size", 20)
+	_apply_button_style(next_button)
+	next_button.pressed.connect(_on_next_pressed)
+	button_hbox.add_child(next_button)
 
+	# Bottom spacer
+	var bottom_spacer = Control.new()
+	bottom_spacer.custom_minimum_size = Vector2(0, 20)
+	vbox.add_child(bottom_spacer)
+
+	# Start hidden
+	hide()
+
+func show_level_complete(title: String = "Level Complete!", message: String = "Great job!") -> void:
+	title_label.text = title
+	message_label.text = message
+	show()
+
+func _apply_button_style(button: Button) -> void:
 	# Apply bright green on dark background styling
-	next_button.add_theme_color_override("font_color", Color(0, 1, 0, 1))  # Bright green
-	next_button.add_theme_color_override("font_hover_color", Color(0.5, 1, 0.5, 1))  # Lighter green on hover
-	next_button.add_theme_color_override("font_pressed_color", Color(0, 0.8, 0, 1))  # Darker green when pressed
+	button.add_theme_color_override("font_color", Color(0, 1, 0, 1))  # Bright green
+	button.add_theme_color_override("font_hover_color", Color(0.5, 1, 0.5, 1))  # Lighter green on hover
+	button.add_theme_color_override("font_pressed_color", Color(0, 0.8, 0, 1))  # Darker green when pressed
 
 	# Create StyleBox for button background
 	var normal_style = StyleBoxFlat.new()
@@ -131,25 +164,13 @@ func _ready() -> void:
 	pressed_style.corner_radius_bottom_left = 5
 	pressed_style.corner_radius_bottom_right = 5
 
-	next_button.add_theme_stylebox_override("normal", normal_style)
-	next_button.add_theme_stylebox_override("hover", hover_style)
-	next_button.add_theme_stylebox_override("pressed", pressed_style)
+	button.add_theme_stylebox_override("normal", normal_style)
+	button.add_theme_stylebox_override("hover", hover_style)
+	button.add_theme_stylebox_override("pressed", pressed_style)
 
-	next_button.pressed.connect(_on_next_pressed)
-	vbox.add_child(next_button)
-
-	# Bottom spacer
-	var bottom_spacer = Control.new()
-	bottom_spacer.custom_minimum_size = Vector2(0, 20)
-	vbox.add_child(bottom_spacer)
-
-	# Start hidden
+func _on_continue_pressed() -> void:
+	continue_playing_pressed.emit()
 	hide()
-
-func show_level_complete(title: String = "Level Complete!", message: String = "Great job!") -> void:
-	title_label.text = title
-	message_label.text = message
-	show()
 
 func _on_next_pressed() -> void:
 	next_level_pressed.emit()
